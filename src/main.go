@@ -34,56 +34,57 @@ func main() {
 	stateValues := []sValue{
 		col1, col2,
 	}
+	stateValues = appendNewSatetValue("col3", "equals", "hello", false, stateValues)
+	stateValues = appendNewSatetValue("col3", "noequals", "hello", false, stateValues)
 
-	fValues := []fValue{}
+	fValues := converSValues(stateValues)
 
 	// convert stateValues to server values
-	for _, value := range stateValues {
+
+	fmt.Println(stateValues)
+	fmt.Println(fValues)
+
+	fmt.Println("---------------------------")
+}
+
+func converSValues(sValues []sValue) []fValue {
+	var result []fValue
+	for _, value := range sValues {
 		for k := range value.conditions {
 			var fVal fValue
 			fVal.field = value.colID
 			fVal.op = k
 			fVal.value = value.conditions[k]
-			fValues = append(fValues, fVal)
+			result = append(result, fVal)
 		}
 	}
 
-	for _, value := range fValues {
-		fmt.Println(value)
-	}
-
-	// add another value to stateValues
-
-	stateValues = appendNewSatetValue("col3", "equals", "hello", false, stateValues)
-	stateValues = appendNewSatetValue("col3", "noequals", "hello", false, stateValues)
-
-	fmt.Println(stateValues)
-
-	fmt.Println("---------------------------")
+	return result
 }
 
 func appendNewSatetValue(colID string, operator string, value string, isGroup bool, vals []sValue) []sValue {
 
 	sValueAux := sValue{}
 
+	// look for an item with the same colID
 	for _, sVal := range vals {
 		if sVal.colID == colID {
 			sValueAux = sVal
 		}
 	}
 
+	// review if the value was found if not create one
 	if sValueAux.colID == "" {
-		fmt.Println("there is not colID")
 		sValueAux.colID = colID
 		sValueAux.groupType = true
 		sValueAux.conditions = map[string]string{operator: value}
 		vals = append(vals, sValueAux)
 	} else {
+		// when the col is a group condition
 		if isGroup {
 			sValueAux.conditions[operator] = value
 		} else {
 			sValueAux.conditions = map[string]string{operator: value}
-			fmt.Println(sValueAux)
 		}
 		var result []sValue
 		for _, rValue := range vals {

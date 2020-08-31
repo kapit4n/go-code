@@ -14,10 +14,6 @@ type sValue struct {
 	conditions map[string]string
 }
 
-func (s sValue) String() string {
-	return fmt.Sprintf("colID: %s", s.colID)
-}
-
 func main() {
 
 	var col1 sValue
@@ -56,7 +52,52 @@ func main() {
 		fmt.Println(value)
 	}
 
+	// add another value to stateValues
+
+	stateValues = appendNewSatetValue("col3", "equals", "hello", false, stateValues)
+	stateValues = appendNewSatetValue("col3", "noequals", "hello", false, stateValues)
+
+	fmt.Println(stateValues)
+
 	fmt.Println("---------------------------")
+}
+
+func appendNewSatetValue(colID string, operator string, value string, isGroup bool, vals []sValue) []sValue {
+
+	sValueAux := sValue{}
+
+	for _, sVal := range vals {
+		if sVal.colID == colID {
+			sValueAux = sVal
+		}
+	}
+
+	if sValueAux.colID == "" {
+		fmt.Println("there is not colID")
+		sValueAux.colID = colID
+		sValueAux.groupType = true
+		sValueAux.conditions = map[string]string{operator: value}
+		vals = append(vals, sValueAux)
+	} else {
+		if isGroup {
+			sValueAux.conditions[operator] = value
+		} else {
+			sValueAux.conditions = map[string]string{operator: value}
+			fmt.Println(sValueAux)
+		}
+		var result []sValue
+		for _, rValue := range vals {
+			if rValue.colID != colID {
+				result = append(result, rValue)
+			} else {
+				result = append(result, sValueAux)
+			}
+		}
+		vals = result
+	}
+
+	return vals
+
 }
 
 // {code: }

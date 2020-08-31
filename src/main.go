@@ -2,33 +2,61 @@ package main
 
 import "fmt"
 
+type fValue struct {
+	field string
+	op    string
+	value string
+}
+
 type sValue struct {
-	coldID     string
+	colID      string
 	groupType  bool
 	conditions map[string]string
 }
 
 func (s sValue) String() string {
-	return fmt.Sprintf("colID: %s", s.coldID)
+	return fmt.Sprintf("colID: %s", s.colID)
 }
 
 func main() {
 
-	var cold1 sValue
-	cold1.coldID = "col1"
-	cold1.groupType = true
-	cold1.conditions = map[string]string{
+	var col1 sValue
+	col1.colID = "col1"
+	col1.groupType = true
+	col1.conditions = map[string]string{
 		"greatherThan": "2020-08-01",
 		"lessThan":     "2021-08-01",
 	}
 
-	stateValues := []sValue{
-		cold1,
+	var col2 sValue
+	col2.colID = "col2"
+	col2.groupType = false
+	col2.conditions = map[string]string{
+		"equals": "value",
 	}
 
-	fmt.Println(stateValues)
+	stateValues := []sValue{
+		col1, col2,
+	}
 
-	fmt.Println("hello world")
+	fValues := []fValue{}
+
+	// convert stateValues to server values
+	for _, value := range stateValues {
+		for k := range value.conditions {
+			var fVal fValue
+			fVal.field = value.colID
+			fVal.op = k
+			fVal.value = value.conditions[k]
+			fValues = append(fValues, fVal)
+		}
+	}
+
+	for _, value := range fValues {
+		fmt.Println(value)
+	}
+
+	fmt.Println("---------------------------")
 }
 
 // {code: }
